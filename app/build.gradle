@@ -1,0 +1,114 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.solution.alnahar.eatit"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:animated-vector-drawable:27.1.1'
+    implementation 'com.android.support:customtabs:27.1.1'
+
+
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+
+
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+
+    //useful libraries
+
+
+//
+//    implementation 'com.google.gms:google-services:4.0.1'
+//    implementation 'com.google.android.gms:play-services-location:11.8.0'
+//    implementation 'com.google.android.gms:play-services-auth:11.8.0'
+
+    //facebook share liberary
+    implementation 'com.facebook.android:facebook-share:4.27.0'
+    implementation 'com.facebook.android:account-kit-sdk:4.11.0'
+
+
+
+    implementation 'com.google.firebase:firebase-auth:11.8.0'
+    implementation 'com.google.firebase:firebase-database:11.8.0'
+    implementation 'com.google.firebase:firebase-storage:11.8.0'
+    // FirebaseUI for Firebase Realtime Database
+    implementation 'com.firebaseui:firebase-ui-database:3.3.1'
+
+
+
+
+
+
+    implementation 'com.android.support:design:27.1.1'
+
+
+// use for write object into android memeory without any headech :P
+    implementation 'io.paperdb:paperdb:2.6'
+    // use for remember me check box
+    implementation 'com.github.rey5137:material:1.2.4'
+    implementation 'com.rengwuxian.materialedittext:library:2.1.4'
+    implementation 'com.github.d-max:spots-dialog:0.7@aar'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
+
+    implementation 'com.stepstone.apprating:app-rating:2.2.0'
+
+    implementation 'com.cepheuen.elegant-number-button:lib:1.0.2'
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    // JSON Converter
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+
+
+
+    // room
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+// FButton
+    implementation 'com.github.jd-alexander:android-flat-button:v1.1'
+
+ 
+
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+
+    // counter fab cart
+    implementation 'com.github.andremion:counterfab:1.0.1'
+
+    //slider both ggradle below
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation 'com.daimajia.slider:library:1.1.5@aar'
+
+
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+
+
+}
+
+apply plugin: 'com.google.gms.google-services'

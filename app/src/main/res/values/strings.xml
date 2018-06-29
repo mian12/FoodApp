@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Order Food</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="forgortPassword"><u>Forgot Password?</u></string>
+
+
+
+
+    <string name="facebook_app_id">621295924872153</string>
+    <string name="facebook_login_protocol_name">fb621295924872153</string>
+    <string name="ACCOUNT_KIT_CLIENT_TOKEN">414295c3d54ee6bb929d4d3ab3f19578</string>
+
+
+
+</resources>
