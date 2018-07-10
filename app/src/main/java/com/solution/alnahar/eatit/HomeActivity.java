@@ -277,7 +277,7 @@ public class HomeActivity extends AppCompatActivity
 
 // register token of each device
 
-      //  updateToken(FirebaseInstanceId.getInstance().getToken());
+        updateToken(FirebaseInstanceId.getInstance().getToken());
 
 
         // setup slider
@@ -365,7 +365,7 @@ public class HomeActivity extends AppCompatActivity
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference tokens_db_ref = database.getReference("Tokens");
-        Token data = new Token(token, true); // because this token is send from client side thats why is a false
+        Token data = new Token(token, false); // because this token is send from client side thats why is a false
         tokens_db_ref.child(Common.currentUser.getPhone()).setValue(data);
     }
 

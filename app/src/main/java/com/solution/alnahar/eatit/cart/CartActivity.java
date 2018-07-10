@@ -264,9 +264,9 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                 // delete cart
                 HomeActivity.myAppDatabase.myDao().clearCart();
 
-                // sendNotificationOrder(order_number);
-                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
-                finish();
+                 sendNotificationOrder(order_number);
+//                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
+//                finish();
 
             }
         });
@@ -283,6 +283,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
     }
+
+
 
     private void sendNotificationOrder(final String order_number) {
 

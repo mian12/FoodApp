@@ -13,6 +13,8 @@ public class MyFirebaseIdService extends FirebaseInstanceIdService {
         super.onTokenRefresh();
 
         String tokenRefreshed= FirebaseInstanceId.getInstance().getToken();
+
+        if (Common.currentUser!=null)
         updateTokenToFirebase(tokenRefreshed);
     }
 
@@ -20,7 +22,7 @@ public class MyFirebaseIdService extends FirebaseInstanceIdService {
         FirebaseDatabase database=FirebaseDatabase.getInstance();
        DatabaseReference tokens_db_ref= database.getReference("Tokens");
         Token token=new Token(tokenRefreshed,false); // because this token is send from client side thats why is a false
-        String phone="03447699503";
-        tokens_db_ref.child(phone).setValue(token);
+
+        tokens_db_ref.child(Common.currentUser.getPhone()).setValue(token);
     }
 }
