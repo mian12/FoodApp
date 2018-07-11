@@ -296,7 +296,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
                 for (DataSnapshot postDtaSnapShort : dataSnapshot.getChildren()) {
                     Token serverToken = postDtaSnapShort.getValue(Token.class);
-                    Notification notification = new Notification("Alnahar", "You have new order" + order_number);
+                    Notification notification = new Notification("AlNahar", "You have new order " + order_number);
                     Sender content = new Sender(serverToken.getToken(), notification);
                     mService.sendNotification(content).enqueue(new Callback<MyResponse>() {
                         @Override

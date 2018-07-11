@@ -65,16 +65,7 @@
 
         <activity android:name=".orderStatus.OrderStatusActivity" />
 
-        <!--<service-->
-        <!--android:name=".service.ListenOrderService"-->
-        <!--android:enabled="true"-->
-        <!--android:exported="true"></service>-->
 
-        <!--<service android:name=".service.MyFirebaseMessaging">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-        <!--</intent-filter>-->
-        <!--</service>-->
 
 
         <service android:name=".service.MyFirebaseIdService">
