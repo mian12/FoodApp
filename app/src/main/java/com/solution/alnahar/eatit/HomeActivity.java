@@ -60,7 +60,6 @@ import com.solution.alnahar.eatit.cart.CartActivity;
 import com.solution.alnahar.eatit.foodDetail.FoodDetailsActivity;
 import com.solution.alnahar.eatit.orderStatus.OrderStatusActivity;
 import com.solution.alnahar.eatit.roomDb.MyAppDatabase;
-import com.solution.alnahar.eatit.service.ListenOrderService;
 import com.solution.alnahar.eatit.subCategory.FoodListActivity;
 import com.solution.alnahar.eatit.viewHolder.MenuViewHolder;
 import com.squareup.picasso.Picasso;
