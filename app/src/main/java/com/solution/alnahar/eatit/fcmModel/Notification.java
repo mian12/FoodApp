@@ -4,7 +4,7 @@ public class Notification {
     private String body;
     private String title;
 
-    public Notification(String body,String title)
+    public Notification(String title,String body)
     {
         this.body=body;
         this.title=title;
