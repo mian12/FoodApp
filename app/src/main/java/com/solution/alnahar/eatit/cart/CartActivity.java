@@ -23,6 +23,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -75,6 +79,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     APIService mService;
     LinearLayout rootLayout;
 
+    Place shippingAddess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,7 +242,32 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.dialog_order_adress, null);
-        final MaterialEditText editTextAdress = view.findViewById(R.id.edtAddress);
+//        final MaterialEditText editTextAdress = view.findViewById(R.id.edtAddress);
+        PlaceAutocompleteFragment editAddres= (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        editAddres.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
+
+        ((EditText)editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("Enter your address");
+        ((EditText)editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setTextSize(15);
+
+
+        // get address from place  auto complete
+
+        editAddres.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+
+                shippingAddess=place;
+            }
+
+            @Override
+            public void onError(Status status) {
+
+            }
+        });
+
+
+
         final MaterialEditText editTextComment = view.findViewById(R.id.edtComment);
 
 
@@ -252,7 +282,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                 Request object = new Request();
                 object.setName(Common.currentUser.getName());
                 object.setPhone(Common.currentUser.getPhone());
-                object.setAddress(editTextAdress.getText().toString());
+                object.setAddress(shippingAddess.getAddress().toString());
+                object.setLatlng(String.format("%s,%s",shippingAddess.getLatLng().latitude,shippingAddess.getLatLng().longitude));
                 object.setTotal(txtTotalPrice.getText().toString());
                 object.setOrderList(cartArrayList);
                 //object.setStatus("0");
@@ -268,6 +299,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 //                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
 //                finish();
 
+
             }
         });
 
@@ -275,6 +307,9 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+
+                // remove frgment
+                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
 
             }
         });

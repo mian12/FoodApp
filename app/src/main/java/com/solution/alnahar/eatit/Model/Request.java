@@ -10,6 +10,16 @@ public class Request {
     private String address;
     private String total;
     private String comment;
+
+    public String getLatlng() {
+        return latlng;
+    }
+
+    public void setLatlng(String latlng) {
+        this.latlng = latlng;
+    }
+
+    private  String  latlng;
     private List<Order> orderList;
     private String status="0";
 

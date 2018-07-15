@@ -13,19 +13,11 @@
 
 
 
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/edtAddress"
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="adress"
-            android:inputType="text"
-            android:textColor="@android:color/black"
-            android:textSize="32sp"
-            app:met_baseColor="@android:color/black"
-            app:met_floatingLabel="normal"
-            app:met_primaryColor="@android:color/white"
-            app:met_singleLineEllipsis="true"
-
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
             />
 
         <View

@@ -19,9 +19,20 @@
         tools:replace="android:icon"
         android:theme="@style/AppTheme">
 
+
+       <!--google places api-->
+        <meta-data
+             android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB6ptdVbPztWbMk-mqxInL5ZLe122aMITQ"/>
+
+
+
+
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
 
 
 
