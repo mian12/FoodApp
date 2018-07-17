@@ -37,7 +37,11 @@ dependencies {
 
     //useful libraries
 
+
+    //Google services
     implementation 'com.google.android.gms:play-services-places:12.0.1'
+    implementation 'com.google.android.gms:play-services:12.0.1'
+
 
 
 //
