@@ -41,6 +41,22 @@
 
             />
 
+        <RadioGroup
+            android:layout_width="match_parent" android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rdShipToAdress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ship to this Address"/>
+            <RadioButton
+                android:id="@+id/rdHomeToAdress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Home Address"/>
+        </RadioGroup>
+
 
 
 

@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -23,8 +24,10 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +48,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.JsonObject;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rey.material.widget.SnackBar;
 import com.solution.alnahar.eatit.Common.Common;
@@ -58,18 +62,25 @@ import com.solution.alnahar.eatit.Model.Request;
 import com.solution.alnahar.eatit.Model.Token;
 import com.solution.alnahar.eatit.R;
 import com.solution.alnahar.eatit.SQLiteDatabaseHelper;
+import com.solution.alnahar.eatit.SignInActivity;
 import com.solution.alnahar.eatit.adapter.CartAdapter;
 import com.solution.alnahar.eatit.fcmModel.MyResponse;
 import com.solution.alnahar.eatit.fcmModel.Notification;
 import com.solution.alnahar.eatit.fcmModel.Sender;
 import com.solution.alnahar.eatit.remote.APIService;
+import com.solution.alnahar.eatit.remote.IGoogleService;
 import com.solution.alnahar.eatit.viewHolder.CartViewHolder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -112,6 +123,10 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
     public static final  int  REQUEST_LOCATION_CODE=999;
 
+    // Google Map Api Client
+    IGoogleService mGoogleMapService;
+    String adress="";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +141,9 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+
+
+        mGoogleMapService=Common.getGoogleMapApi();
 
         // Runtime permissions
 
@@ -361,12 +379,12 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.dialog_order_adress, null);
 //        final MaterialEditText editTextAdress = view.findViewById(R.id.edtAddress);
-        PlaceAutocompleteFragment editAddres= (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        final PlaceAutocompleteFragment editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         editAddres.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
 
-        ((EditText)editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("Enter your address");
-        ((EditText)editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setTextSize(15);
+        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("Enter your address");
+        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setTextSize(25);
 
 
         // get address from place  auto complete
@@ -388,6 +406,57 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
         final MaterialEditText editTextComment = view.findViewById(R.id.edtComment);
 
+        //Radio buttons
+
+        final RadioButton  rdShipToAdress = view.findViewById(R.id.rdShipToAdress);
+        final RadioButton  rdHomeAdress = view.findViewById(R.id.rdHomeToAdress);
+
+        rdShipToAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                final SpotsDialog  dialog = new SpotsDialog(CartActivity.this);
+                dialog.setCancelable(false);
+
+
+
+                if (isChecked)
+                {
+                    dialog.show();
+                    mGoogleMapService.getAdressName(String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
+                            mLastLocation.getLatitude(),
+                            mLastLocation.getLongitude() ) )
+                            .enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+
+                                    try {
+                                        JSONObject jsonObject=new JSONObject(response.body().toString());
+                                       JSONArray jsonArray= jsonObject.getJSONArray("results");
+                                      JSONObject firstObjct= jsonArray.getJSONObject(0);
+                                     adress = firstObjct.getString("formatted_address");
+                                     // set this adress into edittext
+                                        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
+                                        dialog.dismiss();
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<String> call, Throwable t) {
+
+                                    dialog.dismiss();
+                                    Toast.makeText(CartActivity.this, ""+t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                }
+            }
+        });
+
 
         alertDialog.setView(view);
         alertDialog.setIcon(R.drawable.ic_cart);
@@ -395,13 +464,47 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
+                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
                 // create new request
 
+
+                if (!rdShipToAdress.isChecked() && !rdHomeAdress.isChecked())
+                {
+
+                    // if radio button is not activated
+                    if (shippingAddess!=null) {
+                        adress = shippingAddess.getAddress().toString();
+                    }
+                    else
+                    {
+                        Toast.makeText(CartActivity.this, "Please enter address or select any option ", Toast.LENGTH_SHORT).show();
+
+                        // fix crash fragment
+                        getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                        return;
+                    }
+
+                }
+
+                if (TextUtils.isEmpty(adress))
+                {
+                    Toast.makeText(CartActivity.this, "Please enter address or select any option ", Toast.LENGTH_SHORT).show();
+                    // fix crash fragment
+                    getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                    return;
+                }
+                if (shippingAddess!=null) {
                 Request object = new Request();
                 object.setName(Common.currentUser.getName());
                 object.setPhone(Common.currentUser.getPhone());
-                object.setAddress(shippingAddess.getAddress().toString());
-                object.setLatlng(String.format("%s,%s",shippingAddess.getLatLng().latitude,shippingAddess.getLatLng().longitude));
+                object.setAddress(adress);
+
+                    object.setLatlng(String.format("%s,%s", shippingAddess.getLatLng().latitude, shippingAddess.getLatLng().longitude));
+
                 object.setTotal(txtTotalPrice.getText().toString());
                 object.setOrderList(cartArrayList);
                 //object.setStatus("0");
@@ -413,7 +516,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                 // delete cart
                 HomeActivity.myAppDatabase.myDao().clearCart();
 
-                 sendNotificationOrder(order_number);
+                    sendNotificationOrder(order_number);
+                }
 //                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
 //                finish();
 
@@ -426,8 +530,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
 
-                // remove frgment
-                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+                  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
 
             }
         });
