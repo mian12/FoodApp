@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -86,8 +88,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CartActivity extends AppCompatActivity implements RecyclerItemTouchHelperListener,
-        GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,
-        LocationListener{
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
 
     FirebaseDatabase database;
@@ -108,24 +110,25 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     Place shippingAddess;
 
 
-
     //// current Location of device
-   private LocationRequest mLocationRequest;
-   // public LocationRequest mLocationRequest;
-    private GoogleApiClient  mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    // public LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
-    public static final  int  UPDATE_INTERVAL=5000;
-    public static final  int  FASTEST_INTERVAL=3000;
-    public static final  int  DISPLACEMENT=10;
+    public static final int UPDATE_INTERVAL = 5000;
+    public static final int FASTEST_INTERVAL = 3000;
+    public static final int DISPLACEMENT = 10;
 
 
-
-    public static final  int  REQUEST_LOCATION_CODE=999;
+    public static final int REQUEST_LOCATION_CODE = 999;
 
     // Google Map Api Client
     IGoogleService mGoogleMapService;
-    String adress="";
+    String adress = "";
+
+
+
 
 
     @Override
@@ -142,30 +145,24 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         getSupportActionBar().setHomeButtonEnabled(true);
 
 
-
-        mGoogleMapService=Common.getGoogleMapApi();
+        mGoogleMapService = Common.getGoogleMapApi();
 
         // Runtime permissions
 
 
-
-        if (ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
-        {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Check permission
-            ActivityCompat.requestPermissions(this,new String[]
-                    {android.Manifest.permission.ACCESS_FINE_LOCATION}
-                    ,REQUEST_LOCATION_CODE);
-        }
-        else {
+            ActivityCompat.requestPermissions(this, new String[]
+                            {android.Manifest.permission.ACCESS_FINE_LOCATION}
+                    , REQUEST_LOCATION_CODE);
+        } else {
 
-            if (checkPlayServices())
-            {
+            if (checkPlayServices()) {
                 buildingGoogleApiClient();
                 createLocationRequest();
             }
         }
-
 
 
         // init apiservice
@@ -181,15 +178,12 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         layoutManager = new LinearLayoutManager(this);
         recyclerView_cartList.setLayoutManager(layoutManager);
 
-        rootLayout=findViewById(R.id.rootLayout);
+        rootLayout = findViewById(R.id.rootLayout);
 
 // swipe  touch listener
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
 
-      new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView_cartList);
-
-
-
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView_cartList);
 
 
         // animation from right to left slide
@@ -224,8 +218,16 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     }
 
 
-    private synchronized  void buildingGoogleApiClient() {
-        mGoogleApiClient=new GoogleApiClient.Builder(this)
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+      //  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+    }
+
+    private synchronized void buildingGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
@@ -236,7 +238,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     }
 
     private void createLocationRequest() {
-        mLocationRequest= LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
 
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
@@ -253,14 +255,11 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode)
-        {
-            case  REQUEST_LOCATION_CODE:{
+        switch (requestCode) {
+            case REQUEST_LOCATION_CODE: {
 
-                if (grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
-                {
-                    if (checkPlayServices())
-                    {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPlayServices()) {
                         buildingGoogleApiClient();
                         createLocationRequest();
                     }
@@ -275,8 +274,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(this);
-        if(status != ConnectionResult.SUCCESS) {
-            if(googleApiAvailability.isUserResolvableError(status)) {
+        if (status != ConnectionResult.SUCCESS) {
+            if (googleApiAvailability.isUserResolvableError(status)) {
                 googleApiAvailability.getErrorDialog(this, status, 2404).show();
                 Toast.makeText(this, "This device  is not supported", Toast.LENGTH_SHORT).show();
                 finish();
@@ -355,8 +354,16 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     @Override
     protected void onPause() {
 
-        super.onPause();
+
         //  Log.e("tag","on pause");
+
+       // android.app.FragmentManager fm = getFragmentManager();
+//        //SupportMapFragment mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
+//        if (fm != null)
+        //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+           //  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+        super.onPause();
 
 
     }
@@ -377,9 +384,10 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
         LayoutInflater inflater = LayoutInflater.from(this);
+
         View view = inflater.inflate(R.layout.dialog_order_adress, null);
-//        final MaterialEditText editTextAdress = view.findViewById(R.id.edtAddress);
-        final PlaceAutocompleteFragment editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+      final   PlaceAutocompleteFragment    editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         editAddres.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
 
@@ -393,7 +401,10 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             @Override
             public void onPlaceSelected(Place place) {
 
-                shippingAddess=place;
+
+                shippingAddess = place;
+                Log.e("position",shippingAddess.getLatLng().latitude+"  "+shippingAddess.getLatLng().longitude);
+                Toast.makeText(CartActivity.this, shippingAddess.getLatLng().latitude+" long"+shippingAddess.getLatLng().longitude, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -403,40 +414,38 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         });
 
 
-
         final MaterialEditText editTextComment = view.findViewById(R.id.edtComment);
 
         //Radio buttons
 
-        final RadioButton  rdShipToAdress = view.findViewById(R.id.rdShipToAdress);
-        final RadioButton  rdHomeAdress = view.findViewById(R.id.rdHomeToAdress);
+        final RadioButton rdShipToAdress = view.findViewById(R.id.rdShipToAdress);
+        final RadioButton rdHomeAdress = view.findViewById(R.id.rdHomeToAdress);
 
         rdShipToAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                final SpotsDialog  dialog = new SpotsDialog(CartActivity.this);
-                dialog.setCancelable(false);
+                final SpotsDialog dialog = new SpotsDialog(CartActivity.this);
+               // dialog.setCancelable(true);
 
 
-
-                if (isChecked)
-                {
+                if (isChecked) {
                     dialog.show();
                     mGoogleMapService.getAdressName(String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
                             mLastLocation.getLatitude(),
-                            mLastLocation.getLongitude() ) )
+                            mLastLocation.getLongitude()))
                             .enqueue(new Callback<String>() {
                                 @Override
                                 public void onResponse(Call<String> call, Response<String> response) {
 
                                     try {
-                                        JSONObject jsonObject=new JSONObject(response.body().toString());
-                                       JSONArray jsonArray= jsonObject.getJSONArray("results");
-                                      JSONObject firstObjct= jsonArray.getJSONObject(0);
-                                     adress = firstObjct.getString("formatted_address");
-                                     // set this adress into edittext
+                                        JSONObject jsonObject = new JSONObject(response.body().toString());
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        JSONObject firstObjct = jsonArray.getJSONObject(0);
+                                        adress = firstObjct.getString("formatted_address");
+                                        // set this adress into edittext
                                         ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
+
                                         dialog.dismiss();
 
 
@@ -449,11 +458,36 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                                 public void onFailure(Call<String> call, Throwable t) {
 
                                     dialog.dismiss();
-                                    Toast.makeText(CartActivity.this, ""+t.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CartActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
 
                 }
+            }
+        });
+
+
+        /// home address
+        rdHomeAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
+
+                if (isChecked) {
+                    if (Common.currentUser.getHomeAddress() != null) {
+                        adress = Common.currentUser.getHomeAddress();
+
+                        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
+
+
+                    } else {
+
+                        Toast.makeText(CartActivity.this, "Please Update your Home Address", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
             }
         });
 
@@ -464,21 +498,19 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
-                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                dialog.dismiss();
+
 
                 // create new request
 
 
-                if (!rdShipToAdress.isChecked() && !rdHomeAdress.isChecked())
-                {
+                if (!rdShipToAdress.isChecked() && !rdHomeAdress.isChecked()) {
 
                     // if radio button is not activated
-                    if (shippingAddess!=null) {
+                    if (shippingAddess != null) {
                         adress = shippingAddess.getAddress().toString();
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(CartActivity.this, "Please enter address or select any option ", Toast.LENGTH_SHORT).show();
 
                         // fix crash fragment
@@ -489,37 +521,49 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
                 }
 
-                if (TextUtils.isEmpty(adress))
-                {
+                if (TextUtils.isEmpty(adress)) {
                     Toast.makeText(CartActivity.this, "Please enter address or select any option ", Toast.LENGTH_SHORT).show();
                     // fix crash fragment
                     getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
 
                     return;
                 }
-                if (shippingAddess!=null) {
-                Request object = new Request();
-                object.setName(Common.currentUser.getName());
-                object.setPhone(Common.currentUser.getPhone());
-                object.setAddress(adress);
+              //  if (shippingAddess != null) {
+                    Request object = new Request();
+                    object.setName(Common.currentUser.getName());
+                    object.setPhone(Common.currentUser.getPhone());
+                    object.setAddress(adress);
 
+//                    if (!rdHomeAdress.isChecked())
+//                    {
+                try {
                     object.setLatlng(String.format("%s,%s", shippingAddess.getLatLng().latitude, shippingAddess.getLatLng().longitude));
 
-                object.setTotal(txtTotalPrice.getText().toString());
-                object.setOrderList(cartArrayList);
-                //object.setStatus("0");
-                object.setComment(editTextComment.getText().toString());
-
-                String order_number = String.valueOf(System.currentTimeMillis());
-                // submit to firebase we will use current mili seconds  for request key
-                request_db_ref.child(order_number).setValue(object);
-                // delete cart
-                HomeActivity.myAppDatabase.myDao().clearCart();
-
-                    sendNotificationOrder(order_number);
                 }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+
+                   // }
+
+
+                    object.setTotal(txtTotalPrice.getText().toString());
+                    object.setOrderList(cartArrayList);
+                    //object.setStatus("0");
+                    object.setComment(editTextComment.getText().toString());
+
+                    String order_number = String.valueOf(System.currentTimeMillis());
+                    // submit to firebase we will use current mili seconds  for request key
+                    request_db_ref.child(order_number).setValue(object);
+                    // delete cart
+                    HomeActivity.myAppDatabase.myDao().clearCart();
+
+                //    sendNotificationOrder(order_number);
+              //  }
 //                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
-//                finish();
+////                finish();
 
 
             }
@@ -531,7 +575,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                 dialog.dismiss();
 
                 //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
-                  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
 
             }
         });
@@ -540,7 +584,6 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
     }
-
 
 
     private void sendNotificationOrder(final String order_number) {
@@ -553,14 +596,20 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
                 for (DataSnapshot postDtaSnapShort : dataSnapshot.getChildren()) {
                     Token serverToken = postDtaSnapShort.getValue(Token.class);
+
                     Notification notification = new Notification("Food Order", "You have new order " + order_number);
+
                     Sender content = new Sender(serverToken.getToken(), notification);
+
                     mService.sendNotification(content).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
 
                             if (response.body().success == 1) {
                                 Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
+                                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+                                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
                                 finish();
                             } else {
                                 Toast.makeText(CartActivity.this, "Failed!!", Toast.LENGTH_SHORT).show();
@@ -570,6 +619,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                         @Override
                         public void onFailure(Call<MyResponse> call, Throwable t) {
 
+                            Toast.makeText(CartActivity.this, t.getMessage()+"", Toast.LENGTH_SHORT).show();
                             Log.e("error", t.getMessage());
                         }
                     });
@@ -596,9 +646,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
             adapter.removeItem(deleteIndex);
 
-            HomeActivity.myAppDatabase.myDao().removeFromCart(deleteItem.getProduct_id(),Common.currentUser.getPhone());
+            HomeActivity.myAppDatabase.myDao().removeFromCart(deleteItem.getProduct_id(), Common.currentUser.getPhone());
             //HomeActivity.myAppDatabase.myDao().removeFromCart(deleteItem.getProduct_id());
-
 
 
             List<Order> orderList = HomeActivity.myAppDatabase.myDao().getCart();
@@ -616,16 +665,15 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             txtTotalPrice.setText(fmt.format(total));
 
             // makes snakbar
-            Snackbar snackBar=Snackbar.make(rootLayout,name+"  removed from  cart!!", Snackbar.LENGTH_LONG);
+            Snackbar snackBar = Snackbar.make(rootLayout, name + "  removed from  cart!!", Snackbar.LENGTH_LONG);
 
             snackBar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    adapter.restoreItem(deleteItem,deleteIndex);
+                    adapter.restoreItem(deleteItem, deleteIndex);
 
                     HomeActivity.myAppDatabase.myDao().addToCart(deleteItem);
-
 
 
                     List<Order> orderList = HomeActivity.myAppDatabase.myDao().getCart();
@@ -643,20 +691,14 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                     txtTotalPrice.setText(fmt.format(total));
 
 
-
                 }
             });
             snackBar.setActionTextColor(Color.YELLOW);
             snackBar.show();
 
 
-
-
         }
     }
-
-
-
 
 
     @Override
@@ -679,46 +721,37 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     }
 
 
+    private void displayLocation() {
 
-    private void displayLocation()
-    {
-
-        if (ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
-        {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mLastLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        
-        if (mLastLocation!=null)
-        {
-            Log.e("Loction","Your Location"+mLastLocation.getLatitude()+", "+mLastLocation.getLongitude());
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        }
-        else
-        {
-            Log.e("Loction","Coudn't get your location!!");
+        if (mLastLocation != null) {
+            Log.e("Loction", "Your Location" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude());
+
+        } else {
+            Log.e("Loction", "Coudn't get your location!!");
         }
 
     }
-
 
 
     private void startLocationUpdates() {
 
-        if (ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
-        {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
-
 
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation=location;
+        mLastLocation = location;
         displayLocation();
 
     }

@@ -257,10 +257,16 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        // set name  for user
-         view = navigationView.getHeaderView(0);
-        txtFullUserName = view.findViewById(R.id.userName);
-        txtFullUserName.setText(Common.currentUser.getName());
+        try {
+            // set name  for user
+            view = navigationView.getHeaderView(0);
+            txtFullUserName = view.findViewById(R.id.userName);
+            txtFullUserName.setText(Common.currentUser.getName());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
 
         if (Common.isConnectedToInternet(getApplicationContext())) {
@@ -362,10 +368,16 @@ public class HomeActivity extends AppCompatActivity
 
     private void updateToken(String token) {
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference tokens_db_ref = database.getReference("Tokens");
-        Token data = new Token(token, false); // because this token is send from client side thats why is a false
-        tokens_db_ref.child(Common.currentUser.getPhone()).setValue(data);
+        try {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference tokens_db_ref = database.getReference("Tokens");
+            Token data = new Token(token, false); // because this token is send from client side thats why is a false
+            tokens_db_ref.child(Common.currentUser.getPhone()).setValue(data);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 
@@ -504,7 +516,14 @@ public class HomeActivity extends AppCompatActivity
             Intent cartIntent = new Intent(HomeActivity.this, CartActivity.class);
             startActivity(cartIntent);
 
-        } else if (id == R.id.nav_orders) {
+        }
+
+        else if (id == R.id.nav_homeAdress) {
+
+            showHomeAddressDialog();
+
+        }
+        else if (id == R.id.nav_orders) {
             Intent orderIntent = new Intent(HomeActivity.this, OrderStatusActivity.class);
             startActivity(orderIntent);
 
@@ -535,6 +554,67 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showHomeAddressDialog() {
+
+
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(HomeActivity.this);
+        alertDialog.setTitle("Change Home Address");
+        alertDialog.setMessage("Please fill all information");
+
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        View view = inflater.inflate(R.layout.dialog_home_address, null);
+
+        final MaterialEditText editTextHomeAddress = view.findViewById(R.id.editHomeAddress);
+        alertDialog.setView(view);
+//        alertDialog.setIcon(R.drawable.ic_home_black_24dp);
+
+
+
+        alertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+
+
+                    final android.app.AlertDialog waitingDialog = new SpotsDialog(HomeActivity.this);
+
+                    waitingDialog.show();
+
+                Common.currentUser.setHomeAddress(editTextHomeAddress.getText().toString());
+
+                FirebaseDatabase.getInstance().getReference("User")
+                        .child(Common.currentUser.getPhone())
+                        .setValue(Common.currentUser)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                waitingDialog.dismiss();
+
+                                Toast.makeText(HomeActivity.this, "Update Address Successfull", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+
+
+            }
+        });
+
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+
+
+            }
+        });
+
+        alertDialog.show();
+
     }
 
     private void changePasswordDialog() {

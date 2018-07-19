@@ -8,6 +8,16 @@ public class User {
     private String isStaff ="false";
     private String secureCode ;
 
+    public String getHomeAddress() {
+        return homeAddress;
+    }
+
+    public void setHomeAddress(String homeAddress) {
+        this.homeAddress = homeAddress;
+    }
+
+    private  String homeAddress;
+
     //alt+insert
 
 
@@ -52,4 +62,6 @@ public class User {
     public void setIsStaff(String isStaff) {
         this.isStaff = isStaff;
     }
+
+
 }
