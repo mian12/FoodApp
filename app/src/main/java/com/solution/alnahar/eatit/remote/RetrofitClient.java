@@ -7,24 +7,24 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public class RetrofitClient {
 
     public  static Retrofit retrofit=null;
-    public  static  Retrofit getRetrofit(String baseUrl)
+    public  static  Retrofit getRetrofit(String baseUrl_Fcm)
     {
         if (retrofit==null)
         {
             retrofit=new Retrofit.Builder()
-                    .baseUrl(baseUrl)
+                    .baseUrl(baseUrl_Fcm)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         return  retrofit;
     }
 
-    public  static  Retrofit getGoogleClient(String baseUrl)
+    public  static  Retrofit getGoogleClient(String baseUrl_device_position)
     {
         if (retrofit==null)
         {
             retrofit=new Retrofit.Builder()
-                    .baseUrl(baseUrl)
+                    .baseUrl(baseUrl_device_position)
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .build();
         }

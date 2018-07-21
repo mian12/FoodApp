@@ -418,19 +418,26 @@ public class FoodListActivity extends AppCompatActivity {
                 });
 
 
-                final String itemId=adapter.getRef(position).getKey();
-               final String phoneNo= String.valueOf(Common.currentUser.getPhone());
-                // add favourites
+                 String itemId=null;
+                 String phoneNo = null;
+                try {
 
-               String idReturn= HomeActivity.myAppDatabase.myDao().isFavourite(itemId,phoneNo);
-                if (idReturn==null) {
-                    holder.favtFood.setImageResource(R.drawable.ic_favorite_border_black_24dp);
-                }
-                else
+
+                    itemId = adapter.getRef(position).getKey();
+                   phoneNo = String.valueOf(Common.currentUser.getPhone());
+                    // add favourites
+
+                    String idReturn = HomeActivity.myAppDatabase.myDao().isFavourite(itemId, phoneNo);
+                    if (idReturn == null) {
+                        holder.favtFood.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                    } else {
+                        holder.favtFood.setImageResource(R.drawable.ic_favorite_red_24dp);
+                    }
+
+                }catch (Exception e)
                 {
-                    holder.favtFood.setImageResource(R.drawable.ic_favorite_red_24dp);
+                    e.getMessage();
                 }
-
 
                 // share phot0
                 holder.image_share_fb.setOnClickListener(new View.OnClickListener() {
@@ -441,6 +448,7 @@ public class FoodListActivity extends AppCompatActivity {
                     }
                 });
 
+                final String finalPhoneNo = phoneNo;
                 holder.favtFood.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -453,11 +461,11 @@ public class FoodListActivity extends AppCompatActivity {
 
                          Favourites favourites=new Favourites();
                         favourites.setProductId(itemId);
-                        favourites.setPhoneNumber(phoneNo);
+                        favourites.setPhoneNumber(finalPhoneNo);
 
 
 
-                        String idReturn= HomeActivity.myAppDatabase.myDao().isFavourite(itemId,phoneNo);
+                        String idReturn= HomeActivity.myAppDatabase.myDao().isFavourite(itemId, finalPhoneNo);
                         if (idReturn==null)
                         {
                             HomeActivity.myAppDatabase.myDao().addTofavourite(favourites);
@@ -465,7 +473,7 @@ public class FoodListActivity extends AppCompatActivity {
                             Toast.makeText(FoodListActivity.this, model.getName()+" added to favourite", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            HomeActivity.myAppDatabase.myDao().removeFavouriteItemId(itemId,phoneNo);
+                            HomeActivity.myAppDatabase.myDao().removeFavouriteItemId(itemId, finalPhoneNo);
                             holder.favtFood.setImageResource(R.drawable.ic_favorite_border_black_24dp);
                             Toast.makeText(FoodListActivity.this, model.getName()+" removed from favourite", Toast.LENGTH_SHORT).show();
                         }

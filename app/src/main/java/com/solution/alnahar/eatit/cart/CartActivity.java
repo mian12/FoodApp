@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
@@ -128,7 +129,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     String adress = "";
 
 
-
+    View view=null;
+    PlaceAutocompleteFragment editAddres;
 
 
     @Override
@@ -376,23 +378,56 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
     }
 
+
+
+//    @override
+//    public void onDetach(){
+//        super.onDetach();
+//        FragmentManager fm = getFragmentManager()
+//
+//        Fragment xmlFragment = fm.findFragmentById(R.id.yourfragmentid);
+//        if(xmlFragment != null){
+//            fm.beginTransaction().remove(xmlFragment).commit();
+//        }
+//    }
+
+
+
     private void alertDialogPlaceOrder() {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(CartActivity.this);
         alertDialog.setTitle("One  More Step");
         alertDialog.setMessage("Enter your address");
 
+        if (view!=null )
+        {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null) {
+                 parent.removeView(view);
+
+
+
+            }
+        }
+
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        View view = inflater.inflate(R.layout.dialog_order_adress, null);
+        if (view==null) {
+            view= inflater.inflate(R.layout.dialog_order_adress, null);
 
-      final   PlaceAutocompleteFragment    editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+       }
+
+
+        editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         editAddres.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
 
         ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("Enter your address");
         ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setTextSize(25);
+
+
+
 
 
         // get address from place  auto complete
@@ -420,6 +455,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
         final RadioButton rdShipToAdress = view.findViewById(R.id.rdShipToAdress);
         final RadioButton rdHomeAdress = view.findViewById(R.id.rdHomeToAdress);
+
 
         rdShipToAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -468,6 +504,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
         /// home address
+
         rdHomeAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -498,6 +535,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
+                /// its tooo much important to decalare view null beacuse without this it creates null pointer exception :)
+                view=null;
 
                 dialog.dismiss();
 
@@ -560,10 +599,36 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                     // delete cart
                     HomeActivity.myAppDatabase.myDao().clearCart();
 
-                //    sendNotificationOrder(order_number);
+                  // sendNotificationOrder(order_number);
               //  }
 //                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
-////                finish();
+//               finish();
+
+                Notification notification = new Notification("Food Order", "You have new order " + order_number);
+
+                Sender content = new Sender("ehSWIntXoGc:APA91bF32KraG0JSyEir0-8C8kcVxHHn45VCn3ej4f49ei-NnWaizOvN89H7Oor3y33U_Sbt_jIQHwJArRzNs94SJ7hd-rnx2cHNcH5gpfGTc16H3wb87OLgJaLWVzqv4oafKwUa2fhxgUBe3K5nu13rk9AGclqayQ", notification);
+                mService.sendNotification(content).enqueue(new Callback<MyResponse>() {
+                    @Override
+                    public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+
+                        if (response.body().success == 1) {
+                            Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
+                            //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+                            getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                            finish();
+                        } else {
+                            Toast.makeText(CartActivity.this, "Failed!!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                        Toast.makeText(CartActivity.this, t.getMessage()+"", Toast.LENGTH_SHORT).show();
+                        Log.e("error", t.getMessage());
+                    }
+                });
 
 
             }
@@ -572,10 +637,14 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
 
+
+                /// its tooo much important to decalare view null beacuse without this it creates null pointer exception :)
+                view=null;
                 //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
                 getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                dialog.dismiss();
 
             }
         });
@@ -601,28 +670,29 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
                     Sender content = new Sender(serverToken.getToken(), notification);
 
-                    mService.sendNotification(content).enqueue(new Callback<MyResponse>() {
-                        @Override
-                        public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
 
-                            if (response.body().success == 1) {
-                                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
-                                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
-                                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
-
-                                finish();
-                            } else {
-                                Toast.makeText(CartActivity.this, "Failed!!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<MyResponse> call, Throwable t) {
-
-                            Toast.makeText(CartActivity.this, t.getMessage()+"", Toast.LENGTH_SHORT).show();
-                            Log.e("error", t.getMessage());
-                        }
-                    });
+//                    mService.sendNotification(content).enqueue(new Callback<MyResponse>() {
+//                        @Override
+//                        public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+//
+//                            if (response.body().success == 1) {
+//                                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
+//                                //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
+//                                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+//
+//                                finish();
+//                            } else {
+//                                Toast.makeText(CartActivity.this, "Failed!!", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<MyResponse> call, Throwable t) {
+//
+//                            Toast.makeText(CartActivity.this, t.getMessage()+"", Toast.LENGTH_SHORT).show();
+//                            Log.e("error", t.getMessage());
+//                        }
+//                    });
                 }
 
             }
@@ -632,6 +702,23 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (view!=null)
+        {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null)
+                parent.removeView(view);
+        }
+//        android.app.FragmentManager fm=getFragmentManager();
+//        if (fm!=null) {
+//           fm.beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+//        }
+
     }
 
     @Override
