@@ -6,29 +6,32 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
-    public  static Retrofit retrofit=null;
+    public  static Retrofit retrofitGson=null;
+    public  static Retrofit retrofitScalar=null;
+
     public  static  Retrofit getRetrofit(String baseUrl_Fcm)
     {
-        if (retrofit==null)
+        if (retrofitGson==null)
         {
-            retrofit=new Retrofit.Builder()
+            retrofitGson=new Retrofit.Builder()
                     .baseUrl(baseUrl_Fcm)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
-        return  retrofit;
+        return  retrofitGson;
     }
 
     public  static  Retrofit getGoogleClient(String baseUrl_device_position)
     {
-        if (retrofit==null)
+        if (retrofitScalar==null)
         {
-            retrofit=new Retrofit.Builder()
+            retrofitScalar=new Retrofit.Builder()
                     .baseUrl(baseUrl_device_position)
-                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+//                    .addConverterFactory(ScalarsConverterFactory.create())
                     .build();
         }
-        return  retrofit;
+        return  retrofitScalar;
     }
 
 }
