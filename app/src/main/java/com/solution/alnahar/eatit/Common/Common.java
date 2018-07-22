@@ -10,6 +10,9 @@ import com.solution.alnahar.eatit.remote.APIService;
 import com.solution.alnahar.eatit.remote.IGoogleService;
 import com.solution.alnahar.eatit.remote.RetrofitClient;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 public class Common {
 
     public  static User currentUser;
@@ -73,4 +76,17 @@ public class Common {
         return  false;
     }
 
+
+    public  static String getDate(long time)
+    {
+        // convert timeSpan to actual Date
+        Calendar calendar=Calendar.getInstance(Locale.ENGLISH);
+        calendar.setTimeInMillis(time);
+
+        StringBuilder date=new StringBuilder(
+                android.text.format.DateFormat.format("dd-MM-yyyy HH:mm",calendar).toString()
+        );
+
+        return  date.toString();
+    }
 }

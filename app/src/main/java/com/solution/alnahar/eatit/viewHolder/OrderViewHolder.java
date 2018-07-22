@@ -11,8 +11,8 @@ import com.solution.alnahar.eatit.R;
 public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
 
-    public TextView order_id,order_status,order_phone,order_address;
-    public ImageView menuImage;
+    public TextView order_id,order_status,order_phone,order_address,order_date;
+    public ImageView delete_order;
     public ItemClickListner itemClickListner;
 
     public OrderViewHolder(View itemView) {
@@ -22,6 +22,8 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnC
         order_status = itemView.findViewById(R.id.order_status);
         order_phone = itemView.findViewById(R.id.order_phone);
         order_address = itemView.findViewById(R.id.order_address);
+        delete_order = itemView.findViewById(R.id.delete_order);
+        order_date= itemView.findViewById(R.id.order_date);
 
 
         itemView.setOnClickListener(this);

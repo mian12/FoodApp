@@ -11,6 +11,11 @@ public class Request {
     private String total;
     private String comment;
 
+
+    private  String  latlng;
+    private List<Order> orderList;
+    private String status="0";
+
     public String getLatlng() {
         return latlng;
     }
@@ -19,9 +24,7 @@ public class Request {
         this.latlng = latlng;
     }
 
-    private  String  latlng;
-    private List<Order> orderList;
-    private String status="0";
+
 
     public String getPhone() {
         return phone;

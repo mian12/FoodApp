@@ -1,17 +1,23 @@
 package com.solution.alnahar.eatit.orderStatus;
 
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -32,7 +38,7 @@ public class OrderStatusActivity extends AppCompatActivity {
     RecyclerView recyclerView_orderStatus;
     RecyclerView.LayoutManager layoutManager;
 
-    FirebaseRecyclerAdapter adapter;
+   public  FirebaseRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +94,53 @@ public class OrderStatusActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onBindViewHolder(@NonNull OrderViewHolder holder, int position, @NonNull Request model) {
+            protected void onBindViewHolder(@NonNull OrderViewHolder holder, final int position, @NonNull final Request model) {
+
 
                 holder.order_id.setText(adapter.getRef(position).getKey());
+
+                // convert timeStamp to Actual date then set on textView
+                holder.order_date.setText(Common.getDate(Long.parseLong(adapter.getRef(position).getKey())));
                 holder.order_phone.setText(model.getPhone());
                 holder.order_address.setText(model.getAddress());
                 holder.order_status.setText(Common.convertCodeToStatus(model.getStatus()));
+
+                holder.delete_order.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        String st=model.getStatus();
+                        Log.e("status",st);
+
+                        if (model.getStatus().equalsIgnoreCase("0"))
+                        {
+
+                            new AlertDialog.Builder(OrderStatusActivity.this)
+                                    .setMessage("Are you sure you want to delete?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // start code from here
+
+                                            deleteOrder(adapter.getRef(position).getKey());
+
+                                            // end code here
+
+
+                                        }
+                                    })
+                                    .setNegativeButton("No", null)
+                                    .show();
+
+
+                        }
+                        else {
+                            Toast.makeText(OrderStatusActivity.this, "You can't cancel this order now", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+
                 holder.setItemClickListner(new ItemClickListner() {
                     @Override
                     public void onClick(View view, int position, Boolean isLongClick) {
@@ -102,12 +149,34 @@ public class OrderStatusActivity extends AppCompatActivity {
                 });
 
 
+
+
             }
         };
 
         recyclerView_orderStatus.setAdapter(adapter);
     }
 
+    private void deleteOrder(final String key) {
+
+        requests_db_ref.child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                StringBuilder detail=new StringBuilder("Order");
+                detail.append(key);
+                detail.append("has been deleted!!");
+
+                Toast.makeText(OrderStatusActivity.this,detail, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+                Toast.makeText(OrderStatusActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 
     @Override
