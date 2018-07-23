@@ -10,11 +10,32 @@ public class Request {
     private String address;
     private String total;
     private String comment;
+    private String paymentMethod;
+    private String paymentStatus;
 
-
-    private  String  latlng;
+    private String latlng;
     private List<Order> orderList;
-    private String status="0";
+    private String status = "0";
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+
+
 
     public String getLatlng() {
         return latlng;
@@ -23,7 +44,6 @@ public class Request {
     public void setLatlng(String latlng) {
         this.latlng = latlng;
     }
-
 
 
     public String getPhone() {

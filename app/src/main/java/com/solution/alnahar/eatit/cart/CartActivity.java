@@ -110,12 +110,11 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     SQLiteDatabaseHelper databaseHelper;
 
 
-
     LinearLayout rootLayout;
 
     Place shippingAddess;
- double shippingAddess_Lat=0.0;
- double shippingAddess_Lng=0.0;
+    double shippingAddess_Lat = 0.0;
+    double shippingAddess_Lng = 0.0;
 
     //// current Location of device
     private LocationRequest mLocationRequest;
@@ -130,15 +129,17 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
     public static final int REQUEST_LOCATION_CODE = 999;
 
-// for Notification
+    // for Notification
     APIService mService;
     // Google Map Api Client
     IGoogleService mGoogleMapService;
     String adress = "";
 
 
-    View view=null;
+    View view = null;
     PlaceAutocompleteFragment editAddres;
+
+    String paymentMethod = "";
 
 
     @Override
@@ -177,8 +178,6 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                 createLocationRequest();
             }
         }
-
-
 
 
         // init firebase
@@ -236,7 +235,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         super.onBackPressed();
 
         //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
-      //  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+        //  getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
     }
 
     private synchronized void buildingGoogleApiClient() {
@@ -365,18 +364,16 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     }
 
 
-
     private void alertDialogPlaceOrder() {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(CartActivity.this);
         alertDialog.setTitle("One  More Step");
         alertDialog.setMessage("Enter your address");
 
-        if (view!=null )
-        {
+        if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
             if (parent != null) {
-                 parent.removeView(view);
+                parent.removeView(view);
 
             }
         }
@@ -384,21 +381,18 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        if (view==null) {
-            view= inflater.inflate(R.layout.dialog_order_adress, null);
+        if (view == null) {
+            view = inflater.inflate(R.layout.dialog_order_adress, null);
 
-       }
+        }
 
 
         editAddres = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
         editAddres.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
 
-        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("Enter your address");
+        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setHint("enter your address");
         ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setTextSize(25);
-
-
-
 
 
         // get address from place  auto complete
@@ -409,8 +403,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
                 shippingAddess = place;
-                Log.e("position",shippingAddess.getLatLng().latitude+"  "+shippingAddess.getLatLng().longitude);
-                Toast.makeText(CartActivity.this, shippingAddess.getLatLng().latitude+" long"+shippingAddess.getLatLng().longitude, Toast.LENGTH_SHORT).show();
+                Log.e("position", shippingAddess.getLatLng().latitude + "  " + shippingAddess.getLatLng().longitude);
+                Toast.makeText(CartActivity.this, shippingAddess.getLatLng().latitude + " long" + shippingAddess.getLatLng().longitude, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -427,84 +421,87 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         final RadioButton rdShipToAdress = view.findViewById(R.id.rdShipToAdress);
         final RadioButton rdHomeAdress = view.findViewById(R.id.rdHomeToAdress);
 
+        final RadioButton rdCashOnDelivery = view.findViewById(R.id.rdCOD);
+        final RadioButton rdPaypal = view.findViewById(R.id.rdPayPal);
+
 
         rdShipToAdress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 final SpotsDialog dialog = new SpotsDialog(CartActivity.this);
-               // dialog.setCancelable(true);
+                // dialog.setCancelable(true);
 
 
                 if (isChecked) {
                     dialog.show();
-//                    mGoogleMapService.getAdressName(String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
-//                            mLastLocation.getLatitude(),
-//                            mLastLocation.getLongitude()))
-//                            .enqueue(new Callback<String>() {
-//                                @Override
-//                                public void onResponse(Call<String> call, Response<String> response) {
-//
-//                                    try {
-//                                        JSONObject jsonObject = new JSONObject(response.body().toString());
-//                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-//                                        JSONObject firstObjct = jsonArray.getJSONObject(0);
-//                                        adress = firstObjct.getString("formatted_address");
-//                                        // set this adress into edittext
-//                                        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
-//
-//                                        dialog.dismiss();
-//
-//
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFailure(Call<String> call, Throwable t) {
-//
-//                                    dialog.dismiss();
-//                                    Toast.makeText(CartActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-
                     mGoogleMapService.getAdressName(String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
                             mLastLocation.getLatitude(),
                             mLastLocation.getLongitude()))
-                            .enqueue(new Callback<MyPlacesResponse>() {
+                            .enqueue(new Callback<String>() {
                                 @Override
-                                public void onResponse(Call<MyPlacesResponse> call, Response<MyPlacesResponse> response) {
-                                    if (response!=null)
-                                    {
-                                        List<MyResults> myResults=response.body().getResults();
+                                public void onResponse(Call<String> call, Response<String> response) {
 
-                                       String myAddressName= myResults.get(0).getFormatted_address();
-
-                                        String lat=myResults.get(0).getGeometry().getLocation().getLat();
-                                        String lng=myResults.get(0).getGeometry().getLocation().getLng();
-
-                                        shippingAddess_Lat=Double.parseDouble(lat);
-                                        shippingAddess_Lng=Double.parseDouble(lng);
-
-                                        adress =myAddressName;
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response.body().toString());
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        JSONObject firstObjct = jsonArray.getJSONObject(0);
+                                        adress = firstObjct.getString("formatted_address");
                                         // set this adress into edittext
                                         ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
 
                                         dialog.dismiss();
 
 
-//                                       MyPlacesResponse myPlacesResponse= response.body();
-//                                       Log.e("places",myPlacesResponse+"");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-
                                 }
 
                                 @Override
-                                public void onFailure(Call<MyPlacesResponse> call, Throwable t) {
+                                public void onFailure(Call<String> call, Throwable t) {
 
+                                    dialog.dismiss();
+                                    Toast.makeText(CartActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
+
+//                    mGoogleMapService.getAdressName(String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
+//                            mLastLocation.getLatitude(),
+//                            mLastLocation.getLongitude()))
+//                            .enqueue(new Callback<MyPlacesResponse>() {
+//                                @Override
+//                                public void onResponse(Call<MyPlacesResponse> call, Response<MyPlacesResponse> response) {
+//                                    if (response!=null)
+//                                    {
+//                                        List<MyResults> myResults=response.body().getResults();
+//
+//                                       String myAddressName= myResults.get(0).getFormatted_address();
+//
+//                                        String lat=myResults.get(0).getGeometry().getLocation().getLat();
+//                                        String lng=myResults.get(0).getGeometry().getLocation().getLng();
+//
+//                                        shippingAddess_Lat=Double.parseDouble(lat);
+//                                        shippingAddess_Lng=Double.parseDouble(lng);
+//
+//                                        adress =myAddressName;
+//                                        // set this adress into edittext
+//                                        ((EditText) editAddres.getView().findViewById(R.id.place_autocomplete_search_input)).setText(adress);
+//
+//                                        dialog.dismiss();
+//
+//
+////                                       MyPlacesResponse myPlacesResponse= response.body();
+////                                       Log.e("places",myPlacesResponse+"");
+//                                    }
+//
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Call<MyPlacesResponse> call, Throwable t) {
+//
+//                                }
+//                            });
 
                 }
             }
@@ -536,6 +533,35 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         });
 
 
+        rdCashOnDelivery.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
+                if (isChecked) {
+
+
+                    paymentMethod = "Cash On Delivery";
+                }
+
+            }
+        });
+
+        rdPaypal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
+                if (isChecked) {
+
+                    paymentMethod = "By Paypal";
+
+                }
+
+            }
+        });
+
+
         alertDialog.setView(view);
         alertDialog.setIcon(R.drawable.ic_cart);
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -543,7 +569,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
             public void onClick(DialogInterface dialog, int which) {
 
                 /// its tooo much important to decalare view null beacuse without this it creates null pointer exception :)
-                view=null;
+                view = null;
 
                 dialog.dismiss();
 
@@ -574,59 +600,81 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
                     return;
                 }
-              //  if (shippingAddess != null) {
-                    Request object = new Request();
-                    object.setName(Common.currentUser.getName());
-                    object.setPhone(Common.currentUser.getPhone());
-                    object.setAddress(adress);
+                //  if (shippingAddess != null) {
+                Request object = new Request();
+                object.setName(Common.currentUser.getName());
+                object.setPhone(Common.currentUser.getPhone());
+                object.setAddress(adress);
+                if (!rdCashOnDelivery.isChecked() && !rdPaypal.isChecked()) {
 
-                   if (rdShipToAdress.isChecked()){
-                        try {
+                    Toast.makeText(CartActivity.this, "Please select ony one payment method", Toast.LENGTH_SHORT).show();
+                    // fix crash fragment
+                    getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
+
+                    return;
+                } else {
+                    object.setPaymentMethod(paymentMethod);
+                }
+
+
 //
-                            object.setLatlng(String.format("%s,%s", shippingAddess_Lat, shippingAddess_Lng));
+//                   if (rdShipToAdress.isChecked()){
+//                        try {
+////
+//                            object.setLatlng(String.format("%s,%s", shippingAddess_Lat, shippingAddess_Lng));
+//
+//                            shippingAddess_Lat = 0.0;
+//                            shippingAddess_Lng = 0.0;
+//
+//                        }
+//                        catch (Exception e)
+//                        {
+//                            e.printStackTrace();
+//                        }
+//
+//
+//                    }
+//                    else
+//                   {
+//                       try {
+//
+//                           //object.setLatlng(String.format("%s,%s", shippingAddess.getLatLng().latitude, shippingAddess.getLatLng().longitude));
+//                       }
+//                       catch (Exception e)
+//                       {
+//                           e.printStackTrace();
+//                       }
+//                   }
 
-                            shippingAddess_Lat = 0.0;
-                            shippingAddess_Lng = 0.0;
 
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                try {
 
+                    object.setLatlng(String.format("%s,%s", shippingAddess.getLatLng().latitude, shippingAddess.getLatLng().longitude));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                object.setTotal(txtTotalPrice.getText().toString());
+                object.setOrderList(cartArrayList);
 
-                    }
-                    else
-                   {
-                       try {
+                if (paymentMethod.equalsIgnoreCase("Cash On Delivery"))
+                    object.setPaymentStatus("Unpaid");
+                else
+                    object.setPaymentStatus("paid");
 
-                           //object.setLatlng(String.format("%s,%s", shippingAddess.getLatLng().latitude, shippingAddess.getLatLng().longitude));
-                       }
-                       catch (Exception e)
-                       {
-                           e.printStackTrace();
-                       }
-                   }
+                object.setComment(editTextComment.getText().toString());
 
+                String order_number = String.valueOf(System.currentTimeMillis());
+                // submit to firebase we will use current mili seconds  for request key
+                request_db_ref.child(order_number).setValue(object);
+                // delete cart
+                HomeActivity.myAppDatabase.myDao().clearCart();
 
-                    object.setTotal(txtTotalPrice.getText().toString());
-                    object.setOrderList(cartArrayList);
-                    //object.setStatus("0");
-                    object.setComment(editTextComment.getText().toString());
+                // Send Notification
 
-                    String order_number = String.valueOf(System.currentTimeMillis());
-                    // submit to firebase we will use current mili seconds  for request key
-                    request_db_ref.child(order_number).setValue(object);
-                    // delete cart
-                    HomeActivity.myAppDatabase.myDao().clearCart();
-
-                    // Send Notification
-
-                   sendNotificationOrder(order_number);
-              //  }
+                sendNotificationOrder(order_number);
+                //  }
 //                Toast.makeText(CartActivity.this, "Thank you for order place", Toast.LENGTH_SHORT).show();
 //               finish();
-
 
 
             }
@@ -638,7 +686,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
 
 
                 /// its tooo much important to decalare view null beacuse without this it creates null pointer exception :)
-                view=null;
+                view = null;
                 //  we have to remove  fragment so it can prevent from crash,why  because in xml i use placeholder fragment
                 getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment)).commit();
 
@@ -687,7 +735,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                         @Override
                         public void onFailure(Call<MyResponse> call, Throwable t) {
 
-                            Toast.makeText(CartActivity.this, t.getMessage()+"", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CartActivity.this, t.getMessage() + "", Toast.LENGTH_SHORT).show();
                             Log.e("error", t.getMessage());
                         }
                     });
@@ -706,8 +754,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     protected void onDestroy() {
         super.onDestroy();
 
-        if (view!=null)
-        {
+        if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
             if (parent != null)
                 parent.removeView(view);

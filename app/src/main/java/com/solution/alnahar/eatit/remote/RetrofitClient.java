@@ -27,8 +27,8 @@ public class RetrofitClient {
         {
             retrofitScalar=new Retrofit.Builder()
                     .baseUrl(baseUrl_device_position)
-                    .addConverterFactory(GsonConverterFactory.create())
-//                    .addConverterFactory(ScalarsConverterFactory.create())
+//                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(ScalarsConverterFactory.create())
                     .build();
         }
         return  retrofitScalar;

@@ -7,11 +7,11 @@ import retrofit2.http.GET;
 import retrofit2.http.Url;
 
 public interface IGoogleService {
+
+    @GET
+    Call<String> getAdressName(@Url String url);
 //
 //    @GET
-//    Call<String> getAdressName(@Url String url);
-//
-    @GET
-    Call<MyPlacesResponse> getAdressName(@Url String url);
+//    Call<MyPlacesResponse> getAdressName(@Url String url);
 
 }

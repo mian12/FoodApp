@@ -33,13 +33,22 @@
 
             android:inputType="text"
             android:textColor="@android:color/black"
-            android:textSize="32sp"
+            android:textSize="25sp"
             app:met_baseColor="@android:color/black"
             app:met_floatingLabel="normal"
             app:met_primaryColor="@android:color/white"
             app:met_singleLineEllipsis="true"
 
             />
+
+
+        <TextView
+            android:id="@+id/delivery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:text="Delivery Method"/>
 
         <RadioGroup
             android:layout_width="match_parent" android:orientation="vertical"
@@ -56,6 +65,32 @@
                 android:layout_height="wrap_content"
                 android:text="Home Address"/>
         </RadioGroup>
+
+
+        <TextView
+            android:id="@+id/Payment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:text="Payment Method"/>
+
+        <RadioGroup
+            android:layout_width="match_parent" android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rdCOD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cash On Delivery"/>
+            <RadioButton
+                android:id="@+id/rdPayPal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Paypal"/>
+        </RadioGroup>
+
 
 
 
